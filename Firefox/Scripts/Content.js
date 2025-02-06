@@ -2,7 +2,8 @@
  * @author Vera Konigin vera@groundedwren.com
  */
  
-(function GW(ns) {
+window.GW = window.GW || {};
+(function USS(ns) {
 	browser.runtime.onMessage.addListener((message) => {
 		switch(message.Type) {
 			case "ShowDialog":
@@ -12,19 +13,26 @@
 	});
 
 	function showDialog() {
+		if(ns.Dialog) {
+			doShow();
+			shadowRoot.querySelector(`input`).focus();
+			return;
+		}
+
 		ns.Dialog = document.createElement("dialog");
 		ns.Dialog.style = `padding: 0; border: none; width: 1100px;`;
 		ns.Dialog.appendChild(document.createElement("article"));
-		const shadowRoot = ns.Dialog.firstChild.attachShadow({ mode: "closed" });
+		const shadowRoot = ns.Dialog.firstChild.attachShadow({ mode: "open" });
 		shadowRoot.innerHTML = `
-			<style>${ns.CssReset}</style>
-			<style>
+			<style class="reset">${ns.CssReset}</style>
+			<style class="form">
 				form {
 					display: flex;
 					flex-direction: column;
 					gap: 5px;
 					background-color: var(--background-color-2);
 					padding-block-end: 4px;
+					font-size: initial;
 
 					h1 {
 						background-color: var(--accent-color);
@@ -33,14 +41,10 @@
 
 					label {
 						margin-inline: 5px;
-						&:has(input[type="checkbox"]) {
-							align-self: end;
+						gw-dynamic-textarea {
+							width: 100%;
+							height: 100%;
 						}
-						kbd {
-							background-color: var(--background-color);
-							padding: 2px;
-						}
-						
 						textarea {
 							width: 100%;
 							height: 150px;
@@ -49,7 +53,7 @@
 						}
 					}
 
-					aside {
+					> aside {
 						display: contents;
 					}					
 
@@ -70,23 +74,19 @@
 			</style>
 			<form aria-labelledby="hAdd">
 				<h1 id="hAdd">Add Content for ${window.location.hostname}</h1>
-				<label>
-					<kbd>tab</kbd>&nbsp;to&nbsp;<u>a</u>djust indentation
-					<input type="checkbox" name="alt" title="Alt+A">
-				</label>
-				<label class="input-vertical">
+				<label class="input-vertical" data-template="tmplGwUssDynTxa">
 					Script (js)
-					<textarea
+					<gw-dynamic-textarea><textarea
 						name="script"
 						autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-					></textarea>
+					></textarea></gw-dynamic-textarea>
 				</label>
-				<label class="input-vertical">
+				<label class="input-vertical" data-template="tmplGwUssDynTxa">
 					Style (css)
-					<textarea
+					<gw-dynamic-textarea><textarea
 						name="style"
 						autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-					></textarea>
+					></textarea></gw-dynamic-textarea>
 				</label>
 				<footer>
 					<button type="submit" title="Alt+S"><u>S</u>ave</button>
@@ -104,9 +104,7 @@
 		shadowRoot.querySelector(`[name="hide"]`).addEventListener("click", doHide);
 		shadowRoot.querySelector(`[name="script"]`).value = localStorage.getItem("gw-uss-script") || "";
 		shadowRoot.querySelector(`[name="style"]`).value = localStorage.getItem("gw-uss-style") || "";
-		Array.from(shadowRoot.querySelectorAll(`textarea`)).forEach(txa => txa.addEventListener("keydown", onTxaKeydown));
-		ns.TxaAltCbx = shadowRoot.querySelector(`[name="alt"]`);
-		ns.AsiPolite = shadowRoot.querySelector(`aside`);
+		ns.AsiPolite = shadowRoot.querySelector(`form > aside`);
 
 		document.body.appendChild(ns.Dialog);
 
@@ -127,16 +125,6 @@
 		}
 
 		switch(event.key) {
-			case "a":
-				ns.TxaAltCbx.click();
-				ns.AsiPolite.insertAdjacentHTML(
-					"afterbegin",
-					`<article id="gw-uss-msg-${++ns.MessageIdx}" class="sr-only">
-						Tab now ${ns.TxaAltCbx.checked ? "adjusts indentation" : "moves focus"}
-					</article>`
-				);
-				setTimeout(hideMsg, 100, ns.MessageIdx);
-				break;
 			case "s":
 				event.preventDefault();
 				updateContent();
@@ -182,117 +170,12 @@
 		ns.Form.querySelector(`[name="hide"]`).focus();
 	};
 
-	ns.TxaTabBuffer = {
-		"script": null,
-		"style": null,
-	};
-	onTxaKeydown = (event) => {
-		const txa = event.target;
-
-		const tabBuffer = ns.TxaTabBuffer[txa.name];
-		if(event.key === "z" && event.ctrlKey && tabBuffer !== null) {
-			event.preventDefault();
-			txa.value = tabBuffer.Value;
-			txa.selectionStart = tabBuffer.SelStart;
-			txa.selectionEnd = tabBuffer.SelEnd;
-			ns.TxaTabBuffer[txa.name] = null;
-		}
-
-		if(ns.TxaAltCbx.checked) {
-			if(event.key === "Tab") {
-				onTxaTab(event);
-				return;
-			}
-			if(event.key === "Enter") {
-				onTxaEnter(event);
-				return;
-			}
-		}
-
-		if(event.key !== "Tab" && event.key.length === 1) {
-			ns.TxaTabBuffer[txa.name] = null;
-		}
-	}
-
-	onTxaTab = (event) => {
-		const txa = event.target;
-		const origValue = txa.value;
-		const origStart = txa.selectionStart;
-		const origEnd = txa.selectionEnd;
-		const lineStart = origValue.lastIndexOf("\n", origStart - 1) + 1;
-
-		if(origStart !== origEnd) {
-			event.preventDefault();
-
-			let containedStr = origValue.substring(lineStart, origEnd);
-			let lines = containedStr.split("\n");
-			const origLineZeroLen = lines[0].length;
-			lines = lines.map(line => {
-				if(event.shiftKey) {
-					return (line[0] === "\t") ? line.substring(1) : line;
-				}
-				else {
-					return "\t" + line;
-				}
-			});
-			const shouldAdjustLineZero = lines[0].length !== origLineZeroLen && lines[0].length;
-
-			containedStr = lines.join("\n");
-			txa.value = origValue.substring(0, lineStart) + containedStr + origValue.substring(origEnd);
-			txa.selectionStart = origStart;
-			if(shouldAdjustLineZero) {
-				txa.selectionStart += event.shiftKey ? -1 : 1;
-			}
-			txa.selectionEnd = origStart + containedStr.length - (origStart - lineStart);
-		}
-		else {
-			if(event.shiftKey) {
-				if(origValue.charAt(lineStart) === "\t") {
-					event.preventDefault();
-					txa.value = origValue.substring(0, lineStart) + origValue.substring(lineStart + 1);
-					txa.selectionStart = origStart - 1;
-					txa.selectionEnd = origEnd - 1;
-				}
-				else {
-					return;
-				}
-			}
-			else {
-				event.preventDefault();
-	
-				txa.value = origValue.substring(0, origStart) + '\t' + origValue.substring(origEnd);
-				txa.selectionStart = txa.selectionEnd = (origStart + 1);
-			}
-		}
-		ns.TxaTabBuffer[txa.name] = {Value: origValue, SelStart: origStart, SelEnd: origEnd};
-	};
-
-	onTxaEnter = (event) => {
-		const txa = event.target;
-		const origValue = txa.value;
-		const origStart = txa.selectionStart;
-		const origEnd = txa.selectionEnd;
-		const lineStart = origValue.lastIndexOf("\n", origStart - 1) + 1;
-
-		let charIdx = lineStart;
-		while(origValue[charIdx] === "\t") {
-			charIdx++;
-		}
-
-		let insertStr = "\n" + "\t".repeat(charIdx - lineStart);
-		txa.value = origValue.substring(0, origStart) + insertStr + origValue.substring(origEnd);
-		txa.selectionStart = txa.selectionEnd = (origStart + insertStr.length);
-
-		event.preventDefault();
-	};
-
 	onFormSubmit = (event) => {
 		event.preventDefault();
 
 		updateContent();
 
 		ns.Dialog.close();
-		ns.Dialog.remove();
 	};
 
 	updateContent = function updateContent() {
@@ -304,7 +187,7 @@
 		loadContent(localStorage.getItem("gw-uss-script"), localStorage.getItem("gw-uss-style"));
 	}
 
-	window.addEventListener("load", () => {
+	window.addEventListener("DOMContentLoaded", () => {
 		loadContent(localStorage.getItem("gw-uss-script"), localStorage.getItem("gw-uss-style"));
 	});
 	function loadContent(script, style) {
@@ -320,4 +203,4 @@
 			document.head.insertAdjacentHTML("beforeend", `<style class="gw-uss">${style}</style>`);
 		}
 	}
-}) (window.GW = window.GW || {});
+}) (window.GW.USS = window.GW.USS || {});
