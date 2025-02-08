@@ -2,7 +2,8 @@
  * @author Vera Konigin vera@groundedwren.com
  */
  
-(function GW(ns) {
+window.GW = window.GW || {};
+(function USS(ns) {
 	ns.CssReset = `
 	* {
 		--background-color: #FFFFFF;
@@ -297,4 +298,4 @@
 		background-color: var(--selected-color);
 	}
 	`;
-}) (window.GW = window.GW || {});
+}) (window.GW.USS = window.GW.USS || {});
