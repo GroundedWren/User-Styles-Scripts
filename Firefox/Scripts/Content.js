@@ -130,7 +130,6 @@ window.GW = window.GW || {};
 				updateContent();
 
 				ns.Dialog.close();
-				ns.Dialog.remove();
 				break;
 			case "p":
 				event.preventDefault();
