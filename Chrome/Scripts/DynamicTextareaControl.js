@@ -190,20 +190,20 @@ window.GW = window.GW || {};
 				</label>
 			`);
 
-			this.getRef("lblToggle").addEventListener("click", this.onToggleClick);
+			this.getRef("lblToggle").addEventListener("click", (event) => this.onToggleClick(event));
 
 			this.TextArea.setAttribute(
 				"aria-describedby",
 				[this.TextArea.getAttribute("aria-describedby"), this.getId("asiInstruct")].filter(id => !!id).join(" ")
 			);
-			this.TextArea.addEventListener("keydown", this.onTxaKeydown);
+			this.TextArea.addEventListener("keydown", (event) => this.onTxaKeydown(event));
 
 			this.updateState();
 
 			this.IsInitialized = true;
 		}
 
-		onToggleClick = (event) => {
+		onToggleClick(event) {
 			event.stopPropagation();
 			DynamicTextareaEl.EditorMode = !DynamicTextareaEl.EditorMode;
 			localStorage.setItem(`${DynamicTextareaEl.Name}-editor-mode`, DynamicTextareaEl.EditorMode ? "on" : "off");
@@ -231,7 +231,7 @@ window.GW = window.GW || {};
 			}
 		}
 
-		onTxaKeydown = (event) => {
+		onTxaKeydown(event) {
 			if(event.key === "z" && event.ctrlKey && this.TabBuffer.length) {
 				event.preventDefault();
 				const bufferObj = this.TabBuffer.pop();
@@ -263,7 +263,7 @@ window.GW = window.GW || {};
 			}
 		};
 
-		onTxaTab = (event) => {
+		onTxaTab(event) {
 			const origValue = this.TextArea.value;
 			const origStart = this.TextArea.selectionStart;
 			const origEnd = this.TextArea.selectionEnd;
@@ -315,7 +315,7 @@ window.GW = window.GW || {};
 			this.TabBuffer.push({Value: origValue, SelStart: origStart, SelEnd: origEnd});
 		};
 	
-		onTxaEnter = (event) => {
+		onTxaEnter(event) {
 			const origValue = this.TextArea.value;
 			const origStart = this.TextArea.selectionStart;
 			const origEnd = this.TextArea.selectionEnd;

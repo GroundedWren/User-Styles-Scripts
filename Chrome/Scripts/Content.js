@@ -15,7 +15,7 @@ window.GW = window.GW || {};
 	function showDialog() {
 		if(ns.Dialog) {
 			doShow();
-			shadowRoot.querySelector(`input`).focus();
+			ns.Dialog.querySelector(`textarea`).focus();
 			return;
 		}
 
@@ -125,7 +125,7 @@ window.GW = window.GW || {};
 		document.body.appendChild(ns.BtnShow);
 
 		doShow();
-		shadowRoot.querySelector(`input`).focus();
+		shadowRoot.querySelector(`textarea`).focus();
 	}
 
 	ns.MessageIdx = 0;
