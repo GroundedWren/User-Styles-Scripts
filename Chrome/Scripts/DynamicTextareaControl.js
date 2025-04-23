@@ -29,6 +29,8 @@ window.GW = window.GW || {};
 				grid-auto-flow: column;
 				gap: 2px;
 				align-items: center;
+				min-height: 24px;
+				min-width: 24px;
 				justify-content: end;
 
 				margin: 3px;
@@ -72,7 +74,7 @@ window.GW = window.GW || {};
 			}
 
 			textarea {
-				padding-block-start: 1.4rem;
+				padding-block-start: max(26px, 1.4rem);
 				min-width: 22ch;
 			}
 
@@ -137,7 +139,7 @@ window.GW = window.GW || {};
 			return `${DynamicTextareaEl.Name}-${this.InstanceId}-${key}`;
 		}
 		getRef(key) {
-			return this.querySelector(`#${this.getId(key)}`);
+			return this.querySelector(`#${CSS.escape(this.getId(key))}`);
 		}
 
 		get TextArea() {
@@ -159,7 +161,11 @@ window.GW = window.GW || {};
 				observer.observe(this, {attributes: true, childList: false, subtree: false});
 
 				if(document.readyState === "loading") {
-					document.addEventListener("DOMContentLoaded", () => this.renderContent());
+					document.addEventListener("DOMContentLoaded", () => {
+						if(!this.IsInitialized) {
+							this.renderContent();
+						}
+					});
 				}
 				else {
 					this.renderContent();
@@ -184,20 +190,20 @@ window.GW = window.GW || {};
 				</label>
 			`);
 
-			this.getRef("lblToggle").addEventListener("click", (event) => this.onToggleClick(event));
+			this.getRef("lblToggle").addEventListener("click", this.onToggleClick);
 
 			this.TextArea.setAttribute(
 				"aria-describedby",
 				[this.TextArea.getAttribute("aria-describedby"), this.getId("asiInstruct")].filter(id => !!id).join(" ")
 			);
-			this.TextArea.addEventListener("keydown", (event) => this.onTxaKeydown(event));
+			this.TextArea.addEventListener("keydown", this.onTxaKeydown);
 
 			this.updateState();
 
 			this.IsInitialized = true;
-		};
+		}
 
-		onToggleClick(event) {
+		onToggleClick = (event) => {
 			event.stopPropagation();
 			DynamicTextareaEl.EditorMode = !DynamicTextareaEl.EditorMode;
 			localStorage.setItem(`${DynamicTextareaEl.Name}-editor-mode`, DynamicTextareaEl.EditorMode ? "on" : "off");
@@ -225,7 +231,7 @@ window.GW = window.GW || {};
 			}
 		}
 
-		onTxaKeydown(event) {
+		onTxaKeydown = (event) => {
 			if(event.key === "z" && event.ctrlKey && this.TabBuffer.length) {
 				event.preventDefault();
 				const bufferObj = this.TabBuffer.pop();
@@ -257,7 +263,7 @@ window.GW = window.GW || {};
 			}
 		};
 
-		onTxaTab(event) {
+		onTxaTab = (event) => {
 			const origValue = this.TextArea.value;
 			const origStart = this.TextArea.selectionStart;
 			const origEnd = this.TextArea.selectionEnd;
@@ -309,7 +315,7 @@ window.GW = window.GW || {};
 			this.TabBuffer.push({Value: origValue, SelStart: origStart, SelEnd: origEnd});
 		};
 	
-		onTxaEnter(event) {
+		onTxaEnter = (event) => {
 			const origValue = this.TextArea.value;
 			const origStart = this.TextArea.selectionStart;
 			const origEnd = this.TextArea.selectionEnd;
