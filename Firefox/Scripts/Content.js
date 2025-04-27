@@ -23,6 +23,7 @@ window.GW = window.GW || {};
 		ns.Dialog.style = `padding: 0; border: none; width: 1100px;`;
 		ns.Dialog.appendChild(document.createElement("article"));
 		const shadowRoot = ns.Dialog.firstChild.attachShadow({ mode: "open" });
+		shadowRoot.Prism = Prism;
 		shadowRoot.innerHTML = `
 			<style class="reset">${ns.CssReset}</style>
 			<style class="form">
@@ -48,8 +49,10 @@ window.GW = window.GW || {};
 						textarea {
 							width: 100%;
 							height: 150px;
-							padding-inline: 4px;
 							resize: vertical;
+						}
+						textarea, code {
+							padding-inline: 4px;
 						}
 					}
 
@@ -75,15 +78,15 @@ window.GW = window.GW || {};
 			<form aria-labelledby="hAdd">
 				<h1 id="hAdd">Add Content for ${window.location.hostname}</h1>
 				<label class="input-vertical" data-template="tmplGwUssDynTxa">
-					Script (js)
-					<gw-dynamic-textarea><textarea
+					Script
+					<gw-dynamic-textarea data-language="js"><textarea
 						name="script"
 						autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
 					></textarea></gw-dynamic-textarea>
 				</label>
 				<label class="input-vertical" data-template="tmplGwUssDynTxa">
-					Style (css)
-					<gw-dynamic-textarea><textarea
+					Style
+					<gw-dynamic-textarea data-language="css"><textarea
 						name="style"
 						autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
 					></textarea></gw-dynamic-textarea>
