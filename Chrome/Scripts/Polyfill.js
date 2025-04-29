@@ -18,17 +18,17 @@ window.GW = window.GW || {};
 
 	function getInitilaizer(elemClass) {
 		switch(elemClass.Name) {
-			case "gw-dynamic-textarea":
+			case "gw-dynamic-textarea-uss":
 				return function initialize() {
-					DynamicTextareaEl = GW.Controls.DynamicTextareaEl;
+					DynamicTextareaElUSS = GW.Controls.DynamicTextareaElUSS;
 
 					this.TabBuffer = [];
 					this.MessageIdx = 0;
 					this.AsiPolite = null;
 
-					this.InstanceId = DynamicTextareaEl.InstanceCount++;
+					this.InstanceId = DynamicTextareaElUSS.InstanceCount++;
 					if(this.InstanceId === 0) {
-						DynamicTextareaEl.EditorMode = localStorage.getItem(`${DynamicTextareaEl.Name}-editor-mode`) === "on";
+						DynamicTextareaElUSS.EditorMode = localStorage.getItem(`${DynamicTextareaElUSS.Name}-editor-mode`) === "on";
 					}
 
 					this.AsiPolite = document.createElement("aside");

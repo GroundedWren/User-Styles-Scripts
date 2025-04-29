@@ -42,7 +42,7 @@ window.GW = window.GW || {};
 
 					label {
 						margin-inline: 5px;
-						gw-dynamic-textarea {
+						gw-dynamic-textarea-uss {
 							width: 100%;
 							height: 100%;
 						}
@@ -79,17 +79,17 @@ window.GW = window.GW || {};
 				<h1 id="hAdd">Add Content for ${window.location.hostname}</h1>
 				<label class="input-vertical" data-template="tmplGwUssDynTxa">
 					Script
-					<gw-dynamic-textarea data-language="js"><textarea
+					<gw-dynamic-textarea-uss data-language="js"><textarea
 						name="script"
 						autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-					></textarea></gw-dynamic-textarea>
+					></textarea></gw-dynamic-textarea-uss>
 				</label>
 				<label class="input-vertical" data-template="tmplGwUssDynTxa">
 					Style
-					<gw-dynamic-textarea data-language="css"><textarea
+					<gw-dynamic-textarea-uss data-language="css"><textarea
 						name="style"
 						autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-					></textarea></gw-dynamic-textarea>
+					></textarea></gw-dynamic-textarea-uss>
 				</label>
 				<footer>
 					<button type="submit" title="Alt+S"><u>S</u>ave</button>

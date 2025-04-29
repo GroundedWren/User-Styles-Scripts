@@ -5,12 +5,12 @@
  
 window.GW = window.GW || {};
 (function Controls(ns) {
-	ns.DynamicTextareaEl = class DynamicTextareaEl extends HTMLElement {
+	ns.DynamicTextareaElUSS = class DynamicTextareaElUSS extends HTMLElement {
 		static InstanceCount = 0;
 		static InstanceMap = {};
 		static EditorMode = false;
-		static Name = "gw-dynamic-textarea";
-		static Style = `${DynamicTextareaEl.Name} {
+		static Name = "gw-dynamic-textarea-uss";
+		static Style = `${DynamicTextareaElUSS.Name} {
 			position: relative;
 			z-index: 0;
 			box-sizing: border-box;
@@ -151,13 +151,13 @@ window.GW = window.GW || {};
 				}
 			}
 		}
-		[dir="rtl"] ${DynamicTextareaEl.Name} label.mode-toggle {
+		[dir="rtl"] ${DynamicTextareaElUSS.Name} label.mode-toggle {
 			left: 2ch;
 			right: auto;
 		}
 		`;
 		
-		static PrismStyle = `${DynamicTextareaEl.Name} {
+		static PrismStyle = `${DynamicTextareaElUSS.Name} {
 			/*
 			*	This is the Prism "Tomorrow Night" theme. See: https://github.com/PrismJS/prism/blob/master/themes/prism-tomorrow.min.css
 			*
@@ -236,11 +236,11 @@ window.GW = window.GW || {};
 			super();
 			if(!this.getId) {
 				// We're not initialized correctly. Attempting to fix:
-				Object.setPrototypeOf(this, customElements.get(DynamicTextareaEl.Name).prototype);
+				Object.setPrototypeOf(this, customElements.get(DynamicTextareaElUSS.Name).prototype);
 			}
-			this.InstanceId = DynamicTextareaEl.InstanceCount++;
+			this.InstanceId = DynamicTextareaElUSS.InstanceCount++;
 			if(this.InstanceId === 0) {
-				DynamicTextareaEl.EditorMode = localStorage.getItem(`${DynamicTextareaEl.Name}-editor-mode`) === "on";
+				DynamicTextareaElUSS.EditorMode = localStorage.getItem(`${DynamicTextareaElUSS.Name}-editor-mode`) === "on";
 			}
 
 			this.AsiPolite = document.createElement("aside");
@@ -271,7 +271,7 @@ window.GW = window.GW || {};
 		}
 
 		getId(key) {
-			return `${DynamicTextareaEl.Name}-${this.InstanceId}-${key}`;
+			return `${DynamicTextareaElUSS.Name}-${this.InstanceId}-${key}`;
 		}
 		getRef(key) {
 			return this.querySelector(`#${CSS.escape(this.getId(key))}`);
@@ -285,18 +285,18 @@ window.GW = window.GW || {};
 		}
 
 		connectedCallback() {
-			if(!this.Root.querySelector(`style.${DynamicTextareaEl.Name}`)) {
+			if(!this.Root.querySelector(`style.${DynamicTextareaElUSS.Name}`)) {
 				this.Head.insertAdjacentHTML(
 					"beforeend",
 					`
-					<style class=${DynamicTextareaEl.Name}>${DynamicTextareaEl.Style}</style>
-					<style class=${DynamicTextareaEl.Name}>${DynamicTextareaEl.PrismStyle}</style>
+					<style class=${DynamicTextareaElUSS.Name}>${DynamicTextareaElUSS.Style}</style>
+					<style class=${DynamicTextareaElUSS.Name}>${DynamicTextareaElUSS.PrismStyle}</style>
 					`
 				);
 			}
 			this.insertAdjacentElement("afterend", this.AsiPolite);
 
-			DynamicTextareaEl.InstanceMap[this.InstanceId] = this;
+			DynamicTextareaElUSS.InstanceMap[this.InstanceId] = this;
 			if(!this.IsInitialized) {
 				const observer = new MutationObserver((_mutationList, _observer) => {});
 				observer.observe(this, {attributes: true, childList: false, subtree: false});
@@ -318,7 +318,7 @@ window.GW = window.GW || {};
 		}
 
 		disconnectedCallback() {
-			delete DynamicTextareaEl.InstanceMap[this.InstanceId];
+			delete DynamicTextareaElUSS.InstanceMap[this.InstanceId];
 		}
 
 		renderContent() {
@@ -395,23 +395,23 @@ window.GW = window.GW || {};
 
 		onToggleClick = (event) => {
 			event.stopPropagation();
-			DynamicTextareaEl.EditorMode = !DynamicTextareaEl.EditorMode;
-			localStorage.setItem(`${DynamicTextareaEl.Name}-editor-mode`, DynamicTextareaEl.EditorMode ? "on" : "off");
+			DynamicTextareaElUSS.EditorMode = !DynamicTextareaElUSS.EditorMode;
+			localStorage.setItem(`${DynamicTextareaElUSS.Name}-editor-mode`, DynamicTextareaElUSS.EditorMode ? "on" : "off");
 
 			this.AsiPolite.insertAdjacentHTML("afterbegin", `
 				<article id="${this.getId("msg-" + ++this.MessageIdx)}">
-					Tab now ${DynamicTextareaEl.EditorMode  ? "adjusts indentation" : "moves focus"}
+					Tab now ${DynamicTextareaElUSS.EditorMode  ? "adjusts indentation" : "moves focus"}
 				</article>
 			`);
 			setTimeout((idx) => {
 				this.AsiPolite.querySelector(`#${this.getId("msg-" + idx)}`).remove();
 			}, 100, this.MessageIdx);
 
-			Object.values(DynamicTextareaEl.InstanceMap).forEach(element => element.updateState());
+			Object.values(DynamicTextareaElUSS.InstanceMap).forEach(element => element.updateState());
 		};
 
 		updateState() {
-			if(DynamicTextareaEl.EditorMode) {
+			if(DynamicTextareaElUSS.EditorMode) {
 				this.getRef("lblToggle").classList.add("checked");
 				this.getRef("asiInstruct").innerText = "Editor mode is enabled, press F2 to toggle."
 			}
@@ -433,7 +433,7 @@ window.GW = window.GW || {};
 			else if(event.key === "F2") {
 				this.onToggleClick(event);
 			}
-			else if(DynamicTextareaEl.EditorMode) {
+			else if(DynamicTextareaElUSS.EditorMode) {
 				if(event.key === "Tab") {
 					this.onTxaTab(event);
 				}
@@ -539,8 +539,8 @@ window.GW = window.GW || {};
 			this.Code.style.setProperty("top", `-${this.TextArea.scrollTop}px`);
 		};
 	}
-	if(!customElements.get(ns.DynamicTextareaEl.Name)) {
-		customElements.define(ns.DynamicTextareaEl.Name, ns.DynamicTextareaEl);
+	if(!customElements.get(ns.DynamicTextareaElUSS.Name)) {
+		customElements.define(ns.DynamicTextareaElUSS.Name, ns.DynamicTextareaElUSS);
 	}
 }) (window.GW.Controls = window.GW.Controls || {});
-GW?.Controls?.Veil?.clearDefer("GW.Controls.DynamicTextareaEl");
+GW?.Controls?.Veil?.clearDefer("GW.Controls.DynamicTextareaElUSS");
